@@ -1,0 +1,37 @@
+{
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  // Use prettier format default
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    // Use eslint instead of prettier
+    "source.fixAll.eslint": true,
+    // Use tslint instead of prettier
+    "source.fixAll.tslint": true,
+    // Use stylelint instead of prettier
+    "source.fixAll.stylelint": true
+  },
+  // Disable prettier format js
+  "[javascript]": {
+    "editor.formatOnSave": false
+  },
+  // Disable prettier format jsx
+  "[javascriptreact]": {
+    "editor.formatOnSave": false
+  },
+  // Disable prettier format ts
+  "[typescript]": {
+    "editor.formatOnSave": false
+  },
+  // Disable prettier format tsx
+  "[typescriptreact]": {
+    "editor.formatOnSave": false
+  },
+  // Disable prettier format css
+  "[css]": {
+    "editor.formatOnSave": false
+  },
+  // Disable build-in error report
+  "css.validate": false,
+  "less.validate": false,
+  "scss.validate": false
+}
