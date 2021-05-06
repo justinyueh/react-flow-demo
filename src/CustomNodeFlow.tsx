@@ -17,8 +17,8 @@ import ReactFlow, {
   ArrowHeadType,
 } from 'react-flow-renderer';
 
-import ColorSelectorNode from './ColorSelectorNode';
-import config from './config.json';
+import CustomNode, { IData } from './CustomNode';
+import fbp from './fbp';
 
 const onLoad = (reactFlowInstance: OnLoadParams) =>
   console.log('flow loaded:', reactFlowInstance);
@@ -32,105 +32,117 @@ const initBgColor = '#1A192B';
 const connectionLineStyle = { stroke: '#fff' };
 const snapGrid: SnapGrid = [16, 16];
 const nodeTypes = {
-  selectorNode: ColorSelectorNode,
+  customNode: CustomNode,
 };
 
 function styleEdge(element: Edge) {
   element.style = {
     strokeWidth: '3',
   };
-  element.type = 'bezier';
+  element.labelStyle = {
+    fontSize: '10px',
+    fontFamily: "'Courier New', Courier, monospace",
+  };
+
+  element.type = 'smoothstep';
   // element.animated = true;
   element.arrowHeadType = ArrowHeadType.ArrowClosed;
-  // element.label = 'hello';
   return element;
 }
 
-function transform(arr: any[]): Elements {
-  return arr.map((item: Edge | Node) => {
-    const element = {
-      ...item,
-    } as FlowElement;
+interface IElement {
+  id: string;
+  type: string;
+  data: IData;
+}
 
-    if (isEdge(element)) {
-      styleEdge(element);
+interface IFbp {
+  name: string;
+  processes: any[];
+  connections: Record<string, string>;
+}
+
+function getPosition(index = 0) {
+  if (index === 0) {
+    return {
+      x: 50,
+      y: 200,
+    };
+  }
+  if (index === 1) {
+    return {
+      x: 350,
+      y: 100,
+    };
+  }
+  return {
+    x: 650,
+    y: 210,
+  };
+}
+
+function transform(config: IFbp): Elements {
+  const elements = [] as Elements;
+
+  const processesMap = {} as Record<string, Node<IData>>;
+
+  config.processes.forEach((process, index) => {
+    const ele = {
+      id: process.name,
+      type: 'customNode',
+      data: {
+        name: process.name,
+        component: process.component,
+        inPorts: [],
+        outPorts: [],
+      },
+      position: getPosition(index),
+      sourcePosition: 'right',
+    } as Node<IData>;
+    processesMap[process.name] = ele;
+    elements.push(ele);
+  });
+
+  Object.entries(config.connections).forEach(([key, value]) => {
+    const [name, output] = key.split('.');
+    const [name1, data] = value.split('.');
+
+    processesMap[name]?.data?.outPorts.push(output);
+
+    if (processesMap[name1]?.data?.inPorts.indexOf(data) === -1) {
+      processesMap[name1]?.data?.inPorts.push(data);
     }
 
-    return element;
+    const edge = {
+      id: `e${name}${output}-${name1}${data}`,
+      source: name,
+      sourceHandle: output,
+      target: name1,
+      targetHandle: data,
+      // label: output,
+    } as Edge;
+
+    elements.push(styleEdge(edge));
   });
+
+  console.log(elements);
+  return elements;
 }
 
 const CustomNodeFlow = (): JSX.Element => {
   const [elements, setElements] = useState<Elements>([]);
   const [bgColor, setBgColor] = useState<string>(initBgColor);
 
-  // useEffect(() => {
-  //   const onChange = (event: ChangeEvent<HTMLInputElement>) => {
-  //     setElements((els) =>
-  //       els.map((e) => {
-  //         if (isEdge(e) || e.id !== '2') {
-  //           return e;
-  //         }
-
-  //         const color = event.target.value;
-
-  //         setBgColor(color);
-
-  //         return {
-  //           ...e,
-  //           data: {
-  //             ...e.data,
-  //             color,
-  //           },
-  //         };
-  //       })
-  //     );
-  //   };
-
-  //   setElements([
-  //     {
-  //       id: '1',
-  //       type: 'input',
-  //       data: { label: 'An input node' },
-  //       position: { x: 50, y: 50 },
-  //       sourcePosition: Position.Right,
-  //     },
-  //     {
-  //       id: '2',
-  //       type: 'selectorNode',
-  //       data: { onChange: onChange, color: initBgColor },
-  //       style: { border: '1px solid #777', padding: 10 },
-  //       position: { x: 250, y: 50 },
-  //     },
-  //     {
-  //       id: '3',
-  //       type: 'output',
-  //       data: { label: 'Output A' },
-  //       position: { x: 550, y: 25 },
-  //       targetPosition: Position.Left,
-  //     },
-  //     {
-  //       id: '4',
-  //       type: 'output',
-  //       data: { label: 'Output B' },
-  //       position: { x: 550, y: 100 },
-  //       targetPosition: Position.Left,
-  //     },
-
-  //     { id: 'e1-2', source: '1', target: '2', animated: true, style: { stroke: '#fff' }, arrowHeadType: ArrowHeadType.ArrowClosed },
-  //     { id: 'e2a-3', source: '2', sourceHandle: 'a', target: '3', animated: true, style: { stroke: '#fff' }, arrowHeadType: ArrowHeadType.ArrowClosed },
-  //     { id: 'e2b-4', source: '2', sourceHandle: 'b', target: '4', animated: true, style: { stroke: '#fff' }, arrowHeadType: ArrowHeadType.ArrowClosed },
-  //   ]);
-  // }, []);
-
   useEffect(() => {
-    setElements(transform(config));
+    setElements(transform(fbp));
   }, []);
 
   const onElementsRemove = (elementsToRemove: Elements) =>
     setElements((els) => removeElements(elementsToRemove, els));
-  const onConnect = (params: Connection | Edge) =>
+  const onConnect = (params: Connection | Edge) => {
+    console.log(params);
     setElements((els) => addEdge(styleEdge({ ...params } as Edge), els));
+  };
 
   return (
     <ReactFlow
@@ -147,21 +159,7 @@ const CustomNodeFlow = (): JSX.Element => {
       snapGrid={snapGrid}
       defaultZoom={1}
     >
-      <MiniMap
-        nodeStrokeColor={(n: Node): string => {
-          console.log(n);
-          if (n.type === 'input') return '#0041d0';
-          if (n.type === 'selectorNode') return bgColor;
-          if (n.type === 'output') return '#ff0072';
-
-          return '#eee';
-        }}
-        nodeColor={(n: Node): string => {
-          if (n.type === 'selectorNode') return bgColor;
-
-          return '#fff';
-        }}
-      />
+      <MiniMap nodeStrokeColor="#000000" nodeColor="#FFFFFF" />
       <Controls />
     </ReactFlow>
   );

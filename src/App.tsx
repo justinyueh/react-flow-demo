@@ -1,12 +1,12 @@
 import React from 'react';
 import CustomNodeFlow from './CustomNodeFlow';
-import config from './config.json';
+import config from './fbp';
 import './App.css';
 
 export default function App(): JSX.Element {
   return (
     <>
-      <div style={{ padding: '10px 10px 0' }}>learn react</div>
+      <div style={{ padding: '10px 10px 0' }}>Network: {config.name}</div>
       <div className="App">
         <div className="App-flow-item">
           <CustomNodeFlow />
