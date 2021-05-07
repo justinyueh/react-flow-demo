@@ -1,7 +1,5 @@
 import React, { useState, useEffect, MouseEvent } from 'react';
-// import { ChangeEvent } from 'react';
 import ReactFlow, {
-  isEdge,
   removeElements,
   addEdge,
   MiniMap,
@@ -10,24 +8,26 @@ import ReactFlow, {
   FlowElement,
   OnLoadParams,
   Elements,
-  // Position,
   SnapGrid,
   Connection,
   Edge,
   ArrowHeadType,
 } from 'react-flow-renderer';
 
-import CustomNode, { IData } from './CustomNode';
-import fbp from './fbp';
+import CustomNode from './CustomNode';
+import { transform } from './utils';
+import { IFbp } from './constants';
 
-const onLoad = (reactFlowInstance: OnLoadParams) =>
+const onLoad = (reactFlowInstance: OnLoadParams) => {
   console.log('flow loaded:', reactFlowInstance);
-const onNodeDragStop = (_: MouseEvent, node: Node) =>
-  console.log('drag stop', node);
-const onElementClick = (_: MouseEvent, element: FlowElement) =>
-  console.log('click', element);
+};
 
-const initBgColor = '#1A192B';
+const onNodeDragStop = (_: MouseEvent, node: Node) => {
+  console.log('drag stop', node);
+};
+const onElementClick = (_: MouseEvent, element: FlowElement) => {
+  console.log('click', element);
+};
 
 const connectionLineStyle = { stroke: '#fff' };
 const snapGrid: SnapGrid = [16, 16];
@@ -50,92 +50,16 @@ function styleEdge(element: Edge) {
   return element;
 }
 
-interface IElement {
-  id: string;
-  type: string;
-  data: IData;
+interface Props {
+  data: IFbp;
 }
 
-interface IFbp {
-  name: string;
-  processes: any[];
-  connections: Record<string, string>;
-}
-
-function getPosition(index = 0) {
-  if (index === 0) {
-    return {
-      x: 50,
-      y: 200,
-    };
-  }
-  if (index === 1) {
-    return {
-      x: 350,
-      y: 100,
-    };
-  }
-  return {
-    x: 650,
-    y: 210,
-  };
-}
-
-function transform(config: IFbp): Elements {
-  const elements = [] as Elements;
-
-  const processesMap = {} as Record<string, Node<IData>>;
-
-  config.processes.forEach((process, index) => {
-    const ele = {
-      id: process.name,
-      type: 'customNode',
-      data: {
-        name: process.name,
-        component: process.component,
-        inPorts: [],
-        outPorts: [],
-      },
-      position: getPosition(index),
-      sourcePosition: 'right',
-    } as Node<IData>;
-    processesMap[process.name] = ele;
-    elements.push(ele);
-  });
-
-  Object.entries(config.connections).forEach(([key, value]) => {
-    const [name, output] = key.split('.');
-    const [name1, data] = value.split('.');
-
-    processesMap[name]?.data?.outPorts.push(output);
-
-    if (processesMap[name1]?.data?.inPorts.indexOf(data) === -1) {
-      processesMap[name1]?.data?.inPorts.push(data);
-    }
-
-    const edge = {
-      id: `e${name}${output}-${name1}${data}`,
-      source: name,
-      sourceHandle: output,
-      target: name1,
-      targetHandle: data,
-      // label: output,
-    } as Edge;
-
-    elements.push(styleEdge(edge));
-  });
-
-  console.log(elements);
-  return elements;
-}
-
-const CustomNodeFlow = (): JSX.Element => {
+const CustomNodeFlow = ({ data }: Props): JSX.Element => {
   const [elements, setElements] = useState<Elements>([]);
-  const [bgColor, setBgColor] = useState<string>(initBgColor);
 
   useEffect(() => {
-    setElements(transform(fbp));
-  }, []);
+    setElements(transform(data));
+  }, [data]);
 
   const onElementsRemove = (elementsToRemove: Elements) =>
     setElements((els) => removeElements(elementsToRemove, els));
@@ -159,7 +83,7 @@ const CustomNodeFlow = (): JSX.Element => {
       snapGrid={snapGrid}
       defaultZoom={1}
     >
-      <MiniMap nodeStrokeColor="#000000" nodeColor="#FFFFFF" />
+      <MiniMap nodeStrokeColor="#777777" nodeColor="#9e9e9e" />
       <Controls />
     </ReactFlow>
   );

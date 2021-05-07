@@ -13,7 +13,7 @@
 }
 
 .App-item {
-  width: 400px;
+  width: 300px;
 }
 
 .App-textarea {
@@ -78,7 +78,9 @@
   justify-content: center;
 }
 
-.react-flow-customNode-port-text {}
+.react-flow-customNode-port-text {
+  color: #001eff;
+}
 
 .react-flow-customNode-handles {
   display: flex;
@@ -121,7 +123,7 @@
 }
 
 .react-flow-customNode-text__sm {
-  font-size: 0.7em;
+  font-size: 0.8em;
 }
 
 .react-flow__node-customNode .react-flow__handle {

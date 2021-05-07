@@ -1,4 +1,8 @@
-import React, { memo, FC, CSSProperties } from 'react';
+import React, {
+  memo,
+  FC,
+  // CSSProperties
+} from 'react';
 
 import {
   Handle,
@@ -6,36 +10,9 @@ import {
   NodeProps,
   Connection,
   Edge,
-  HandleType,
 } from 'react-flow-renderer';
 
-type TPorts = string[];
-
-export interface IData {
-  inPorts: TPorts;
-  outPorts: TPorts;
-  name: string;
-  component: string;
-}
-
-export interface CustomNodeProps {
-  data: IData;
-}
-
-interface HandleNodeProps {
-  ports: TPorts;
-  position: Position;
-  type: HandleType;
-}
-
-const targetHandleStyle: CSSProperties = { background: '#555' };
-const sourceHandleStyleA: CSSProperties = { ...targetHandleStyle, top: 10 };
-// const sourceHandleStyleB: CSSProperties = {
-//   ...targetHandleStyle,
-
-//   bottom: 10,
-//   top: 'auto',
-// };
+import { HandleNodeProps, CustomNodeProps } from './constants';
 
 const onConnect = (params: Connection | Edge) =>
   console.log('handle onConnect', params);
@@ -67,7 +44,6 @@ const HandleNodes: FC<HandleNodeProps> = ({
               style={{
                 background: '#555',
               }}
-              // className="react-flow__node-customNode__"
               onConnect={onConnect}
               id={id}
             />
