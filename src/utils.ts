@@ -85,3 +85,8 @@ export function parseNodes(nodes: Node<IData>[]): IFbp {
 
   return fbp;
 }
+
+export function copyToClipboard(text: string): void {
+  const json = JSON.parse(text);
+  navigator.clipboard.writeText(JSON.stringify(json));
+}

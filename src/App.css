@@ -13,10 +13,17 @@
 }
 
 .App-item {
-  width: 300px;
+  display: flex;
+  width: 400px;
+  flex-direction: column;
 }
 
-.App-textarea {
+.App-item-box {
+  flex: 1;
+  padding: 0 0 10px;
+}
+
+.App-item-textarea {
   width: 100%;
   min-height: 100%;
   box-sizing: border-box;

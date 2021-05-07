@@ -3,7 +3,7 @@ import { useStoreState } from 'react-flow-renderer';
 import CustomNodeFlow from './CustomNodeFlow';
 import { FbpNormal, FbpMultiInPorts, FbpCycle } from './fbp';
 import { IFbp } from './constants';
-import { parseNodes } from './utils';
+import { parseNodes, copyToClipboard } from './utils';
 import './App.css';
 
 export default function App(): JSX.Element {
@@ -65,6 +65,12 @@ export default function App(): JSX.Element {
     }
   }
 
+  function handleCopy() {
+    if (inputEl.current) {
+      copyToClipboard(inputEl.current.value);
+    }
+  }
+
   return (
     <>
       <div style={{ padding: '10px 10px 0' }}>
@@ -106,11 +112,16 @@ export default function App(): JSX.Element {
           <CustomNodeFlow data={data} />
         </div>
         <div className="App-item">
-          <textarea
-            className="App-textarea"
-            ref={inputEl}
-            onChange={onChangeValue}
-          ></textarea>
+          <div className="App-item-box">
+            <textarea
+              className="App-item-textarea"
+              ref={inputEl}
+              onChange={onChangeValue}
+            />
+          </div>
+          <div>
+            <button onClick={handleCopy}>Copy to Clipboard</button>
+          </div>
         </div>
       </div>
     </>
