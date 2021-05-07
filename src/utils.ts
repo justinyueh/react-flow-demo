@@ -1,4 +1,12 @@
-import { Node, Elements, Edge, ArrowHeadType } from 'react-flow-renderer';
+import {
+  Node,
+  Elements,
+  Edge,
+  isEdge,
+  isNode,
+  ArrowHeadType,
+  FlowExportObject,
+} from 'react-flow-renderer';
 import { IData, IFbp } from './constants';
 
 export function styleEdge(element: Edge): Edge {
@@ -9,6 +17,8 @@ export function styleEdge(element: Edge): Edge {
     fontSize: '10px',
     fontFamily: "'Courier New', Courier, monospace",
   };
+
+  element.id = `e${element.source}${element.sourceHandle}-${element.target}${element.targetHandle}`;
 
   element.type = 'smoothstep';
   // element.animated = true;
@@ -54,7 +64,6 @@ export function transform(config: IFbp): Elements {
     }
 
     const edge = {
-      id: `e${name}${output}-${name1}${data}`,
       source: name,
       sourceHandle: output,
       target: name1,
@@ -66,6 +75,38 @@ export function transform(config: IFbp): Elements {
   });
 
   return elements;
+}
+
+export function transformToSource(
+  object: FlowExportObject<IData>,
+  fbp: IFbp
+): string {
+  console.log(object);
+  const newFbp = {
+    ...fbp,
+    processes: [] as IFbp['processes'],
+    connections: {} as IFbp['connections'],
+    positions: [] as IFbp['positions'],
+  } as IFbp;
+
+  object.elements.forEach((element) => {
+    if (isNode(element)) {
+      newFbp.processes.push({
+        name: element.data?.name || '',
+        component: element.data?.component || '',
+      });
+      newFbp.positions.push({
+        x: element.position.x,
+        y: element.position.y,
+      });
+    } else if (isEdge(element)) {
+      newFbp.connections[
+        `${element.source}.${element.sourceHandle}`
+      ] = `${element.target}.${element.targetHandle}`;
+    }
+  });
+
+  return JSON.stringify(newFbp, null, 2);
 }
 
 export function parseNodes(nodes: Node<IData>[]): IFbp {
@@ -89,4 +130,12 @@ export function parseNodes(nodes: Node<IData>[]): IFbp {
 export function copyToClipboard(text: string): void {
   const json = JSON.parse(text);
   navigator.clipboard.writeText(JSON.stringify(json));
+}
+
+export function jsonParse(str: string): unknown {
+  return eval('(function(){return ' + str + ';})()');
+}
+
+export function beautifyJson(str: string): string {
+  return JSON.stringify(jsonParse(str), null, 2);
 }

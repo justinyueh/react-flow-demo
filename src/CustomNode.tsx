@@ -8,14 +8,15 @@ import {
   Handle,
   Position,
   NodeProps,
-  Connection,
-  Edge,
+  // Connection,
+  // Edge,
 } from 'react-flow-renderer';
 
 import { HandleNodeProps, CustomNodeProps } from './constants';
 
-const onConnect = (params: Connection | Edge) =>
-  console.log('handle onConnect', params);
+// const onConnect = (params: Connection | Edge) => {
+//   console.log('handle onConnect', params);
+// };
 
 const HandleNodes: FC<HandleNodeProps> = ({
   ports,
@@ -44,7 +45,7 @@ const HandleNodes: FC<HandleNodeProps> = ({
               style={{
                 background: '#555',
               }}
-              onConnect={onConnect}
+              // onConnect={onConnect}
               id={id}
             />
           </div>

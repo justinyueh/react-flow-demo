@@ -1,15 +1,29 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useStoreState } from 'react-flow-renderer';
+import {
+  useStoreState,
+  // useStoreActions,
+  OnLoadParams,
+} from 'react-flow-renderer';
 import CustomNodeFlow from './CustomNodeFlow';
 import { FbpNormal, FbpMultiInPorts, FbpCycle } from './fbp';
-import { IFbp } from './constants';
-import { parseNodes, copyToClipboard } from './utils';
+import { IData, IFbp } from './constants';
+import {
+  parseNodes,
+  copyToClipboard,
+  transformToSource,
+  beautifyJson,
+  jsonParse,
+} from './utils';
 import './App.css';
 
 export default function App(): JSX.Element {
   const [data, setData] = useState<IFbp>(FbpNormal);
   const nodes = useStoreState((store) => store.nodes);
+  // const setSelectedElements = useStoreActions(
+  //   (actions) => actions.setSelectedElements
+  // );
   const inputEl = useRef<HTMLTextAreaElement>(null);
+  const instanceRef = useRef<OnLoadParams<IData> | null>(null);
 
   useEffect(() => {
     if (inputEl.current) {
@@ -21,7 +35,7 @@ export default function App(): JSX.Element {
     const fbp = parseNodes(nodes);
     let value = {};
     if (inputEl.current) {
-      value = JSON.parse(inputEl.current.value);
+      value = jsonParse(inputEl.current.value) as string;
 
       inputEl.current.value = JSON.stringify(
         {
@@ -33,6 +47,38 @@ export default function App(): JSX.Element {
       );
     }
   }, [nodes]);
+
+  // const selectAll = () => {
+  //   setSelectedElements(
+  //     nodes.map((node) => ({ id: node.id, type: node.type }))
+  //   );
+  // };
+
+  const instanceToSource = () => {
+    if (instanceRef.current && inputEl.current) {
+      inputEl.current.value = transformToSource(
+        instanceRef.current.toObject(),
+        JSON.parse(inputEl.current.value) as IFbp
+      );
+    }
+  };
+
+  const sourceToInstance = () => {
+    if (inputEl.current) {
+      try {
+        const newData = jsonParse(inputEl.current.value) as IFbp;
+        setData(newData);
+      } catch (e) {
+        console.log('data is not verified json');
+      }
+    }
+  };
+
+  const handleBeautifyJson = () => {
+    if (inputEl.current) {
+      inputEl.current.value = beautifyJson(inputEl.current.value);
+    }
+  };
 
   function onChangeNetwork(event: React.ChangeEvent<HTMLInputElement>) {
     switch (event.target.value) {
@@ -51,17 +97,17 @@ export default function App(): JSX.Element {
   }
 
   function onChangeValue(event: React.ChangeEvent<HTMLTextAreaElement>) {
-    const newValue = event.target.value;
-
     try {
-      const newData = eval('(function(){return ' + newValue + ';})()');
-
+      const newValue = event.target.value;
       if (inputEl.current) {
-        inputEl.current.value = JSON.stringify(newData, null, 2);
+        inputEl.current.value = newValue;
       }
-      setData(newData);
+
+      if (beautifyJson(newValue) === newValue) {
+        setData(JSON.parse(newValue));
+      }
     } catch (e) {
-      console.log('data is not verified json');
+      console.log('JSON not verify');
     }
   }
 
@@ -109,7 +155,7 @@ export default function App(): JSX.Element {
 
       <div className="App">
         <div className="App-flow-item">
-          <CustomNodeFlow data={data} />
+          <CustomNodeFlow data={data} instanceRef={instanceRef} />
         </div>
         <div className="App-item">
           <div className="App-item-box">
@@ -120,6 +166,10 @@ export default function App(): JSX.Element {
             />
           </div>
           <div>
+            <button onClick={sourceToInstance}>←</button>
+            <button onClick={instanceToSource}>→</button>
+            {/* <button onClick={selectAll}>selectAll</button> */}
+            <button onClick={handleBeautifyJson}>beautifyJson</button>
             <button onClick={handleCopy}>Copy to Clipboard</button>
           </div>
         </div>

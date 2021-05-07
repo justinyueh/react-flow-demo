@@ -11,16 +11,11 @@ import ReactFlow, {
   SnapGrid,
   Connection,
   Edge,
-  ArrowHeadType,
 } from 'react-flow-renderer';
 
 import CustomNode from './CustomNode';
-import { transform } from './utils';
-import { IFbp } from './constants';
-
-const onLoad = (reactFlowInstance: OnLoadParams) => {
-  console.log('flow loaded:', reactFlowInstance);
-};
+import { transform, styleEdge } from './utils';
+import { IData, IFbp } from './constants';
 
 const onNodeDragStop = (_: MouseEvent, node: Node) => {
   console.log('drag stop', node);
@@ -35,36 +30,28 @@ const nodeTypes = {
   customNode: CustomNode,
 };
 
-function styleEdge(element: Edge) {
-  element.style = {
-    strokeWidth: '3',
-  };
-  element.labelStyle = {
-    fontSize: '10px',
-    fontFamily: "'Courier New', Courier, monospace",
-  };
-
-  element.type = 'smoothstep';
-  // element.animated = true;
-  element.arrowHeadType = ArrowHeadType.ArrowClosed;
-  return element;
-}
-
 interface Props {
   data: IFbp;
+  instanceRef: React.MutableRefObject<OnLoadParams<IData> | null>;
 }
 
-const CustomNodeFlow = ({ data }: Props): JSX.Element => {
+const CustomNodeFlow = ({ data, instanceRef }: Props): JSX.Element => {
   const [elements, setElements] = useState<Elements>([]);
 
   useEffect(() => {
     setElements(transform(data));
   }, [data]);
 
+  const onLoad = (reactFlowInstance: OnLoadParams<IData>) => {
+    console.log('flow loaded:', reactFlowInstance);
+
+    instanceRef.current = reactFlowInstance;
+  };
+
   const onElementsRemove = (elementsToRemove: Elements) =>
     setElements((els) => removeElements(elementsToRemove, els));
   const onConnect = (params: Connection | Edge) => {
-    console.log(params);
+    console.log('onConnect', params);
     setElements((els) => addEdge(styleEdge({ ...params } as Edge), els));
   };
 
