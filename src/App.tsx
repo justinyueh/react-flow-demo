@@ -84,19 +84,26 @@ export default function App(): JSX.Element {
   };
 
   function onChangeNetwork(event: React.ChangeEvent<HTMLInputElement>) {
+    let newData = {} as IFbp;
     switch (event.target.value) {
       case 'FbpNormal':
-        setData(FbpNormal);
+        newData = FbpNormal;
         break;
       case 'FbpMultiInPorts':
-        setData(FbpMultiInPorts);
+        newData = FbpMultiInPorts;
         break;
       case 'FbpCycle':
-        setData(FbpCycle);
+        newData = FbpCycle;
         break;
       default:
         break;
     }
+
+    if (inputEl.current) {
+      inputEl.current.value = JSON.stringify(newData, null, 2);
+    }
+
+    setData(newData);
   }
 
   function onChangeValue(event: React.ChangeEvent<HTMLTextAreaElement>) {
@@ -170,9 +177,12 @@ export default function App(): JSX.Element {
           </div>
           <div>
             <button onClick={sourceToInstance}>←</button>
+            {` `}
             <button onClick={instanceToSource}>→</button>
+            {` `}
             {/* <button onClick={selectAll}>selectAll</button> */}
             <button onClick={handleBeautifyJson}>beautifyJson</button>
+            {` `}
             <button onClick={handleCopy}>Copy to Clipboard</button>
           </div>
         </div>
