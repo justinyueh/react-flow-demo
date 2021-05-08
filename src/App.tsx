@@ -76,7 +76,10 @@ export default function App(): JSX.Element {
 
   const handleBeautifyJson = () => {
     if (inputEl.current) {
-      inputEl.current.value = beautifyJson(inputEl.current.value);
+      const newValue = beautifyJson(inputEl.current.value);
+      inputEl.current.value = newValue;
+
+      setData(JSON.parse(newValue));
     }
   };
 
