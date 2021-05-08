@@ -5,7 +5,7 @@ import {
   OnLoadParams,
 } from 'react-flow-renderer';
 import CustomNodeFlow from './CustomNodeFlow';
-import { FbpNormal, FbpMultiInPorts, FbpCycle } from './fbp';
+import { FbpNormal, FbpMultiInPorts, FbpMultiOutPorts, FbpCycle } from './fbp';
 import { IData, IFbp } from './constants';
 import {
   parseNodes,
@@ -92,6 +92,9 @@ export default function App(): JSX.Element {
       case 'FbpMultiInPorts':
         newData = FbpMultiInPorts;
         break;
+      case 'FbpMultiOutPorts':
+        newData = FbpMultiOutPorts;
+        break;
       case 'FbpCycle':
         newData = FbpCycle;
         break;
@@ -150,6 +153,16 @@ export default function App(): JSX.Element {
             onChange={onChangeNetwork}
           />
           MultiInPorts
+        </label>
+        <label>
+          <input
+            type="radio"
+            value="FbpMultiOutPorts"
+            name="fbp"
+            checked={data.name === 'MultiOutPorts'}
+            onChange={onChangeNetwork}
+          />
+          MultiOutPorts
         </label>
         <label>
           <input

@@ -43,6 +43,28 @@ export const FbpMultiInPorts = {
   ],
 };
 
+export const FbpMultiOutPorts = {
+  name: 'MultiOutPorts',
+  processes: [
+    { name: 'a', component: 'MultiOutPorts/a' },
+    { name: 'b', component: 'MultiOutPorts/b' },
+    { name: 'c', component: 'MultiOutPorts/c' },
+    { name: 'd', component: 'MultiOutPorts/d' },
+  ],
+  connections: {
+    'a.output': 'b.data',
+    'a.output1': 'c.data',
+    'b.output': 'd.data',
+    'c.output': 'd.data1',
+  },
+  positions: [
+    { x: 50, y: 100 },
+    { x: 300, y: 50 },
+    { x: 300, y: 160 },
+    { x: 550, y: 100 },
+  ],
+};
+
 export const FbpCycle = {
   name: 'Cycle',
   processes: [
